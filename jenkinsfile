@@ -44,7 +44,7 @@ pipeline {
                         name: 'docker',
                         host: '172.31.34.221',
                         user: 'docker1',
-                        credentialsId: 'docker',
+                        credentialsId: 'docker-ssh',
                         port: 22,     
                         allowAnyHosts: true   
                     ],
@@ -65,7 +65,7 @@ pipeline {
                             name: 'docker',
                             host: '172.31.34.221',
                             user: 'docker1',
-                            credentialsId: 'docker',
+                            credentialsId: 'docker-ssh',
                             port: 22,       
                             allowAnyHosts: true   
                         ],
