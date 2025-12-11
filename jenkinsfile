@@ -21,17 +21,18 @@ pipeline {
 
         stage('Copy JAR & Dockerfile to Docker VM') {
             steps {
+
                 sshCommand remote: [
+                    name: 'docker',
                     host: '172.31.34.221',
                     user: 'docker1',
                     credentialsId: 'docker-ssh',
                     port: 22,
                     allowAnyHosts: true
-                ], command: '''
-                    mkdir -p /home/docker1/app
-                '''
+                ], command: 'mkdir -p /home/docker1/app'
 
                 sshPut remote: [
+                    name: 'docker',
                     host: '172.31.34.221',
                     user: 'docker1',
                     credentialsId: 'docker-ssh',
@@ -40,6 +41,7 @@ pipeline {
                 ], from: 'target/HelloWorldMaven-1.1.1-RELEASE.jar', into: '/home/docker1/app/'
 
                 sshPut remote: [
+                    name: 'docker',
                     host: '172.31.34.221',
                     user: 'docker1',
                     credentialsId: 'docker-ssh',
@@ -52,6 +54,7 @@ pipeline {
         stage('Build Docker Image on Docker VM') {
             steps {
                 sshCommand remote: [
+                    name: 'docker',
                     host: '172.31.34.221',
                     user: 'docker1',
                     credentialsId: 'docker-ssh',
@@ -66,9 +69,14 @@ pipeline {
 
         stage('Push Docker Image to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-cred',
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
+                )]) {
 
                     sshCommand remote: [
+                        name: 'docker',
                         host: '172.31.34.221',
                         user: 'docker1',
                         credentialsId: 'docker-ssh',
