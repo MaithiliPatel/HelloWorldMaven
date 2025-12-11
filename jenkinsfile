@@ -46,8 +46,8 @@ pipeline {
                         user: 'docker1',
                         credentialsId: 'docker-ssh',
                         port: 22,
-                        knownHosts: '',       // FIX
-                        allowAnyHosts: true   // FIX
+                        knownHosts: '',       
+                        allowAnyHosts: true   
                     ],
                     command: '''
                         cd /home/docker1
@@ -68,8 +68,8 @@ pipeline {
                             user: 'docker1',
                             credentialsId: 'docker-ssh',
                             port: 22,
-                            knownHosts: '',       // FIX
-                            allowAnyHosts: true   // FIX
+                            knownHosts: '',       
+                            allowAnyHosts: true   
                         ],
                         command: '''
                             echo "$PASS" | docker login -u "$USER" --password-stdin
