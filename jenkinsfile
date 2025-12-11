@@ -21,49 +21,34 @@ pipeline {
 
         stage('Copy JAR & Dockerfile to Docker VM') {
             steps {
-
-                // Create folder on Docker VM
-                sshCommand remote: [
-                    name: 'docker',
-                    host: '172.31.34.221',
-                    user: 'docker1',
-                    credentialsId: 'docker-ssh',   // GLOBAL CREDENTIAL
-                    port: 22,
-                    allowAnyHosts: true
-                ], command: 'mkdir -p /home/docker1/app'
-
-                // Copy JAR
-                sshPut remote: [
-                    name: 'docker',
-                    host: '172.31.34.221',
-                    user: 'docker1',
-                    credentialsId: 'docker-ssh',
-                    port: 22,
-                    allowAnyHosts: true
-                ], from: 'target/HelloWorldMaven-1.1.1-RELEASE.jar', into: '/home/docker1/app/'
-
-                // Copy Dockerfile
-                sshPut remote: [
-                    name: 'docker',
-                    host: '172.31.34.221',
-                    user: 'docker1',
-                    credentialsId: 'docker-ssh',
-                    port: 22,
-                    allowAnyHosts: true
-                ], from: 'Dockerfile', into: '/home/docker1/app/'
+                // Using Publish Over SSH (server name = docker-ssh-key)
+                sshPublisher(publishers: [
+                    sshPublisherDesc(
+                        configName: 'docker-ssh-key',   // ← DIFFERENT NAME
+                        transfers: [
+                            sshTransfer(sourceFiles: 'target/HelloWorldMaven-1.1.1-RELEASE.jar',
+                                        removePrefix: 'target',
+                                        remoteDirectory: 'app'),
+                            sshTransfer(sourceFiles: 'Dockerfile',
+                                        remoteDirectory: 'app')
+                        ],
+                        verbose: true
+                    )
+                ])
             }
         }
 
         stage('Build Docker Image on Docker VM') {
             steps {
                 sshCommand remote: [
-                    name: 'docker',
+                    name: 'docker-server',          // MUST NOT be empty
                     host: '172.31.34.221',
                     user: 'docker1',
-                    credentialsId: 'docker-ssh',
+                    credentialsId: 'docker-ssh',    // Global SSH Key
                     port: 22,
                     allowAnyHosts: true
-                ], command: '''
+                ],
+                command: '''
                     cd /home/docker1/app
                     docker build -t maithili28/hello-world:v1 .
                 '''
@@ -72,20 +57,22 @@ pipeline {
 
         stage('Push Docker Image to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-cred',
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
-                )]) {
-
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-cred',
+                        usernameVariable: 'USER',
+                        passwordVariable: 'PASS'
+                    )
+                ]) {
                     sshCommand remote: [
-                        name: 'docker',
+                        name: 'docker-server',
                         host: '172.31.34.221',
                         user: 'docker1',
                         credentialsId: 'docker-ssh',
                         port: 22,
                         allowAnyHosts: true
-                    ], command: '''
+                    ],
+                    command: '''
                         echo "$PASS" | docker login -u "$USER" --password-stdin
                         docker push maithili28/hello-world:v1
                     '''
