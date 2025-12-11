@@ -39,40 +39,34 @@ pipeline {
 
         stage('Build Docker Image on Docker VM') {
             steps {
-                sshCommand(
-                    remote: [
-                        name: 'docker-ssh',
-                        host: '172.31.34.221',
-                        user: 'docker1',
-                        credentialsId: 'docker-ssh',
-                        port: 22,
-                        allowAnyHosts: true
-                    ],
-                    command: '''
-                        cd /home/docker1
-                        docker build -t maithili28/hello-world:v1 .
-                    '''
-                )
+                sshPublisher(publishers: [
+                    sshPublisherDesc(
+                        configName: 'docker-ssh',
+                        transfers: [],
+                        execCommand: '''
+                            cd /home/docker1
+                            docker build -t maithili28/hello-world:v1 .
+                        ''',
+                        verbose: true
+                    )
+                ])
             }
         }
 
         stage('Push Docker Image to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sshCommand(
-                        remote: [
-                            name: 'docker-ssh',
-                            host: '172.31.34.221',
-                            user: 'docker1',
-                            credentialsId: 'docker-ssh',
-                            port: 22,
-                            allowAnyHosts: true
-                        ],
-                        command: '''
-                            echo "$PASS" | docker login -u "$USER" --password-stdin
-                            docker push maithili28/hello-world:v1
-                        '''
-                    )
+                    sshPublisher(publishers: [
+                        sshPublisherDesc(
+                            configName: 'docker-ssh',
+                            transfers: [],
+                            execCommand: '''
+                                echo "$PASS" | docker login -u "$USER" --password-stdin
+                                docker push maithili28/hello-world:v1
+                            ''',
+                            verbose: true
+                        )
+                    ])
                 }
             }
         }
