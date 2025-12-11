@@ -22,15 +22,17 @@ pipeline {
         stage('Copy JAR & Dockerfile to Docker VM') {
             steps {
 
+                // Create folder on Docker VM
                 sshCommand remote: [
                     name: 'docker',
                     host: '172.31.34.221',
                     user: 'docker1',
-                    credentialsId: 'docker-ssh',
+                    credentialsId: 'docker-ssh',   // GLOBAL CREDENTIAL
                     port: 22,
                     allowAnyHosts: true
                 ], command: 'mkdir -p /home/docker1/app'
 
+                // Copy JAR
                 sshPut remote: [
                     name: 'docker',
                     host: '172.31.34.221',
@@ -40,6 +42,7 @@ pipeline {
                     allowAnyHosts: true
                 ], from: 'target/HelloWorldMaven-1.1.1-RELEASE.jar', into: '/home/docker1/app/'
 
+                // Copy Dockerfile
                 sshPut remote: [
                     name: 'docker',
                     host: '172.31.34.221',
