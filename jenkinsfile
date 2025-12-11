@@ -45,8 +45,7 @@ pipeline {
                         host: '172.31.34.221',
                         user: 'docker1',
                         credentialsId: 'docker',
-                        port: 22,
-                        knownHosts: '',       
+                        port: 22,     
                         allowAnyHosts: true   
                     ],
                     command: '''
@@ -67,8 +66,7 @@ pipeline {
                             host: '172.31.34.221',
                             user: 'docker1',
                             credentialsId: 'docker',
-                            port: 22,
-                            knownHosts: '',       
+                            port: 22,       
                             allowAnyHosts: true   
                         ],
                         command: '''
