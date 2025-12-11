@@ -7,32 +7,23 @@ pipeline {
 
     stages {
 
-        /* ------------------------------------------------------
-           1. CHECKOUT SOURCE CODE
-        ------------------------------------------------------ */
         stage('SCM Checkout') {
             steps {
                 git 'https://github.com/MaithiliPatel/HelloWorldMaven.git'
             }
         }
 
-        /* ------------------------------------------------------
-           2. BUILD JAR USING MAVEN
-        ------------------------------------------------------ */
         stage('Maven Build') {
             steps {
                 sh "mvn -Dmaven.test.failure.ignore=true clean package"
             }
         }
 
-        /* ------------------------------------------------------
-           3. COPY JAR TO DOCKER VM
-        ------------------------------------------------------ */
         stage('Copy JAR to Docker VM') {
             steps {
                 sshPublisher(publishers: [
                     sshPublisherDesc(
-                        configName: 'docker',    // Name in Jenkins Publish Over SSH
+                        configName: 'docker',
                         transfers: [
                             sshTransfer(
                                 sourceFiles: 'target/HelloWorldMaven-1.1.1-RELEASE.jar',
@@ -46,41 +37,42 @@ pipeline {
             }
         }
 
-        /* ------------------------------------------------------
-           4. BUILD DOCKER IMAGE ON DOCKER VM (SSH KEY LOGIN)
-        ------------------------------------------------------ */
         stage('Build Docker Image on Docker VM') {
             steps {
-                sshCommand remote: [
-                    name: 'docker' 
-                    host: '172.31.34.221',          // Docker VM IP
-                    user: 'docker1',                // User on Docker VM
-                    credentialsId: 'docker',    // SSH KEY credential ID in Jenkins
-                    port: 22
-                ], command: '''
-                    cd /home/docker1
-                    docker build -t maithili28/hello-world:v1 .
-                '''
+                sshCommand(
+                    remote: [
+                        name: 'docker',
+                        host: '172.31.34.221',
+                        user: 'docker1',
+                        credentialsId: 'docker-ssh',
+                        port: 22
+                    ],
+                    command: '''
+                        cd /home/docker1
+                        docker build -t maithili28/hello-world:v1 .
+                    '''
+                )
             }
         }
 
-        /* ------------------------------------------------------
-           5. PUSH DOCKER IMAGE TO DOCKER HUB
-        ------------------------------------------------------ */
         stage('Push Docker Image to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
 
-                    sshCommand remote: [
-                        name: 'docker' 
-                        host: '172.31.34.221',
-                        user: 'docker1',
-                        credentialsId: 'docker',   // SSH key for Docker VM
-                        port: 22
-                    ], command: '''
-                        echo "$PASS" | docker login -u "$USER" --password-stdin
-                        docker push maithili28/hello-world:v1
-                    '''
+                    sshCommand(
+                        remote: [
+                            name: 'docker',
+                            host: '172.31.34.221',
+                            user: 'docker1',
+                            credentialsId: 'docker-ssh',
+                            port: 22
+                        ],
+                        command: '''
+                            echo "$PASS" | docker login -u "$USER" --password-stdin
+                            docker push maithili28/hello-world:v1
+                        '''
+                    )
+
                 }
             }
         }
