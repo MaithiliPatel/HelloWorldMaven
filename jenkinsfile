@@ -52,6 +52,7 @@ pipeline {
         stage('Build Docker Image on Docker VM') {
             steps {
                 sshCommand remote: [
+                    name: 'docker'
                     host: '172.31.34.221',          // Docker VM IP
                     user: 'docker1',                // User on Docker VM
                     credentialsId: 'docker',    // SSH KEY credential ID in Jenkins
@@ -71,6 +72,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
 
                     sshCommand remote: [
+                        name: 'docker'
                         host: '172.31.34.221',
                         user: 'docker1',
                         credentialsId: 'docker',   // SSH key for Docker VM
