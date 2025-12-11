@@ -45,7 +45,7 @@ pipeline {
                         host: '172.31.34.221',
                         user: 'docker1',
                         credentialsId: 'docker-ssh',
-                        port: 22
+                        port: 22,
                         knownHosts: '',       // FIX
                         allowAnyHosts: true   // FIX
                     ],
@@ -67,7 +67,7 @@ pipeline {
                             host: '172.31.34.221',
                             user: 'docker1',
                             credentialsId: 'docker-ssh',
-                            port: 22
+                            port: 22,
                             knownHosts: '',       // FIX
                             allowAnyHosts: true   // FIX
                         ],
