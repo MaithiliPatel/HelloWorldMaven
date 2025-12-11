@@ -36,18 +36,11 @@ pipeline {
                 ])
             }
         }
-   
+
         stage('Build Docker Image on Docker VM') {
             steps {
                 sshCommand(
-                    remote: [
-                        name: 'docker',
-                        host: '172.31.34.221',
-                        user: 'docker1',
-                        credentialsId: 'docker-ssh',
-                        port: 22,     
-                        allowAnyHosts: true   
-                    ],
+                    config: 'docker',
                     command: '''
                         cd /home/docker1
                         docker build -t maithili28/hello-world:v1 .
@@ -61,19 +54,13 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
 
                     sshCommand(
-                        remote: [
-                            name: 'docker',
-                            host: '172.31.34.221',
-                            user: 'docker1',
-                            credentialsId: 'docker-ssh',
-                            port: 22,       
-                            allowAnyHosts: true   
-                        ],
+                        config: 'docker',
                         command: '''
                             echo "$PASS" | docker login -u "$USER" --password-stdin
                             docker push maithili28/hello-world:v1
                         '''
                     )
+
                 }
             }
         }
