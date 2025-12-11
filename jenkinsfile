@@ -72,7 +72,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
 
                     sshCommand remote: [
-                        name: 'docker'
+                        name: 'docker' 
                         host: '172.31.34.221',
                         user: 'docker1',
                         credentialsId: 'docker',   // SSH key for Docker VM
