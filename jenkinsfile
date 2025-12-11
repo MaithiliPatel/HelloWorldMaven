@@ -43,10 +43,10 @@ pipeline {
             steps {
                 sshCommand(
                     remote: [
-                        name: 'docker-server',
+                        name: 'docker',
                         host: '172.31.34.221',
                         user: 'docker1',
-                        credentialsId: 'docker-ssh-key',
+                        credentialsId: 'docker-ssh',
                         port: 22,
                         allowAnyHosts: true
                     ],
@@ -66,10 +66,10 @@ pipeline {
 
                     sshCommand(
                         remote: [
-                            name: 'docker-server',
+                            name: 'docker',
                             host: '172.31.34.221',
                             user: 'docker1',
-                            credentialsId: 'docker-ssh-key',
+                            credentialsId: 'docker-ssh',
                             port: 22,
                             allowAnyHosts: true
                         ],
