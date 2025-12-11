@@ -21,42 +21,46 @@ pipeline {
 
         stage('Copy JAR & Dockerfile to Docker VM') {
             steps {
-                sshPublisher(publishers: [
-                    sshPublisherDesc(
-                        configName: 'docker-ssh',
-                        transfers: [
-                            sshTransfer(
-                                sourceFiles: 'target/HelloWorldMaven-1.1.1-RELEASE.jar',
-                                removePrefix: 'target',
-                                remoteDirectory: '.'
-                            ),
-                            sshTransfer(
-                                sourceFiles: 'Dockerfile',
-                                remoteDirectory: '.'
-                            )
-                        ],
-                        verbose: true
-                    )
-                ])
+                sshCommand remote: [
+                    host: '172.31.34.221',
+                    user: 'docker1',
+                    credentialsId: 'docker-ssh',
+                    port: 22,
+                    allowAnyHosts: true
+                ], command: '''
+                    mkdir -p /home/docker1/app
+                '''
+
+                sshPut remote: [
+                    host: '172.31.34.221',
+                    user: 'docker1',
+                    credentialsId: 'docker-ssh',
+                    port: 22,
+                    allowAnyHosts: true
+                ], from: 'target/HelloWorldMaven-1.1.1-RELEASE.jar', into: '/home/docker1/app/'
+
+                sshPut remote: [
+                    host: '172.31.34.221',
+                    user: 'docker1',
+                    credentialsId: 'docker-ssh',
+                    port: 22,
+                    allowAnyHosts: true
+                ], from: 'Dockerfile', into: '/home/docker1/app/'
             }
         }
 
         stage('Build Docker Image on Docker VM') {
             steps {
-                sshCommand(
-                    remote: [
-                        name: 'docker-ssh',
-                        host: '172.31.34.221',
-                        user: 'docker1',
-                        credentialsId: 'docker-ssh',
-                        port: 22,
-                        allowAnyHosts: true
-                    ],
-                    command: '''
-                        cd /home/docker1
-                        docker build -t maithili28/hello-world:v1 .
-                    '''
-                )
+                sshCommand remote: [
+                    host: '172.31.34.221',
+                    user: 'docker1',
+                    credentialsId: 'docker-ssh',
+                    port: 22,
+                    allowAnyHosts: true
+                ], command: '''
+                    cd /home/docker1/app
+                    docker build -t maithili28/hello-world:v1 .
+                '''
             }
         }
 
@@ -64,20 +68,16 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
 
-                    sshCommand(
-                        remote: [
-                            name: 'docker-ssh',
-                            host: '172.31.34.221',
-                            user: 'docker1',
-                            credentialsId: 'docker-ssh',
-                            port: 22,
-                            allowAnyHosts: true
-                        ],
-                        command: '''
-                            echo "$PASS" | docker login -u "$USER" --password-stdin
-                            docker push maithili28/hello-world:v1
-                        '''
-                    )
+                    sshCommand remote: [
+                        host: '172.31.34.221',
+                        user: 'docker1',
+                        credentialsId: 'docker-ssh',
+                        port: 22,
+                        allowAnyHosts: true
+                    ], command: '''
+                        echo "$PASS" | docker login -u "$USER" --password-stdin
+                        docker push maithili28/hello-world:v1
+                    '''
                 }
             }
         }
