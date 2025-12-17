@@ -7,79 +7,68 @@ pipeline {
 
     stages {
 
+        /* ------------------------------------------------------
+           1. CHECKOUT SOURCE CODE
+        ------------------------------------------------------ */
         stage('SCM Checkout') {
             steps {
                 git 'https://github.com/MaithiliPatel/HelloWorldMaven.git'
             }
         }
 
+        /* ------------------------------------------------------
+           2. BUILD JAR USING MAVEN
+        ------------------------------------------------------ */
         stage('Maven Build') {
             steps {
                 sh "mvn -Dmaven.test.failure.ignore=true clean package"
             }
         }
 
-        stage('Copy JAR & Dockerfile to Docker VM') {
+        /* ------------------------------------------------------
+           3. COPY JAR TO DOCKER & CREATE DOCKER IMAGE
+        ------------------------------------------------------ */
+        stage('Docker Image Build') {
             steps {
-                sshPublisher(
-                    publishers: [
-                        sshPublisherDesc(
-                            configName: 'docker-ssh-key',
-                            transfers: [
-                                sshTransfer(sourceFiles: 'target/HelloWorldMaven-1.1.1-RELEASE.jar',
-                                            removePrefix: 'target',
-                                            remoteDirectory: 'app'),
-                                sshTransfer(sourceFiles: 'Dockerfile',
-                                            remoteDirectory: 'app')
-                            ],
-                            verbose: true
-                        )
-                    ]
-                )
+               sh 'docker version'
+				sh "docker build -t maithili28/helloworld:${BUILD_NUMBER} ."
+				sh 'docker image list'
+				sh "docker tag maithili28/helloworld:${BUILD_NUMBER} maithili28/helloworld:latest"
             }
         }
 
-        stage('Build Docker Image on Docker VM') {
+        /* ------------------------------------------------------
+           4. LOGIN TO DOCKERHUB
+        ------------------------------------------------------ */
+        stage('Login to DockerHub') {
             steps {
-                sshCommand(
-                    remote: [
-                        name: 'docker',
-                        host: '172.31.34.221',
-                        user: 'docker1',
-                        credentialsId: 'docker-ssh',
-                        port: 22,
-                        allowAnyHosts: true
-                    ],
-                    command: '''
-                        cd /home/docker1/app
-                        docker build -t maithili28/hello-world:v1 .
-                    '''
-                )
+               sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
 
+		/* ------------------------------------------------------
+           5. APPROVED - PUSH DOCKER IMAGE TO DOCKER HUB
+        ------------------------------------------------------ */
+        stage('Approve - push Image to dockerhub'){
+            steps{
+                
+                //----------------send an approval prompt-------------
+                script {
+                   env.APPROVED_DEPLOY = input message: 'User input required Choose "yes" | "Abort"'
+                       }
+                //-----------------end approval prompt------------
+            }
+        }
+
+        /* ------------------------------------------------------
+           5. PUSH DOCKER IMAGE TO DOCKER HUB
+        ------------------------------------------------------ */
         stage('Push Docker Image to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred',
-                                                 usernameVariable: 'USER',
-                                                 passwordVariable: 'PASS')]) {
-
-                    sshCommand(
-                        remote: [
-                            name: 'docker',
-                            host: '172.31.34.221',
-                            user: 'docker1',
-                            credentialsId: 'docker-ssh',
-                            port: 22,
-                            allowAnyHosts: true
-                        ],
-                        command: '''
-                            echo "$PASS" | docker login -u "$USER" --password-stdin
-                            docker push maithili28/hello-world:v1
-                        '''
-                    )
-                }
+               sh "docker push maithili28/helloworld:latest"
             }
         }
+
     }
 }
+
