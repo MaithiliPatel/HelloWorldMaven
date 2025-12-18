@@ -33,7 +33,6 @@ pipeline {
                sh 'docker version'
 				sh "docker build -t maithili28/helloworld:${BUILD_NUMBER} ."
 				sh 'docker image list'
-				sh "docker tag maithili28/helloworld:${BUILD_NUMBER} maithili28/helloworld:latest"
             }
         }
 
@@ -69,7 +68,7 @@ pipeline {
         ------------------------------------------------------ */
         stage('Push Docker Image to Docker Hub') {
             steps {
-               sh "docker push maithili28/helloworld:latest"
+               sh "docker push maithili28/helloworld:${BUILD_NUMBER}"
             }
         }
 		/* ------------------------------------------------------
@@ -90,7 +89,20 @@ pipeline {
         ------------------------------------------------------ */
         stage('Deploy to Kubernete Cluster') {
             steps {
-               sshPublisher(publishers: [sshPublisherDesc(configName: 'kube-master', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'kubectl apply -f k8smvndeployment.yaml', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '.', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '*.yaml')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                sshPublisher(publishers: [
+                    sshPublisherDesc(
+                        configName: 'kube-master',
+                        transfers: [
+                            sshTransfer(
+                                execCommand: """
+                                kubectl set image deployment/mai-deploy \
+                                mai-mvn-container=maithili28/helloworld:${BUILD_NUMBER}
+                                kubectl rollout status deployment/mai-deploy
+                                """
+                            )
+                        ]
+                    )
+                ])
             }
 		}
     }
