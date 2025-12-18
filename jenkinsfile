@@ -95,7 +95,7 @@ pipeline {
 
                 <p>Thanks,<br/>Jenkins</p>
             """,
-            to: "approver@company.com",
+            to: "maithili28@gmail.com",
             mimeType: 'text/html'
         )
 
