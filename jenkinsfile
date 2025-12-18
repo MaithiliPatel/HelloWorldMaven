@@ -120,13 +120,15 @@ pipeline {
         sh '''
             echo "Keeping image: maithili28/helloworld:${BUILD_NUMBER}"
 
-            docker images maithili28/helloworld --format "{{.Tag}} {{.ID}}" \
+            docker images maithili28/helloworld --format "{{.Tag}}" \
             | grep -v "^${BUILD_NUMBER}$" \
-            | awk '{print $2}' \
-            | xargs -r docker rmi -f
+            | xargs -r -I {} docker rmi maithili28/helloworld:{}
         '''
     }
 }
+
+
+
 
     }
 }
