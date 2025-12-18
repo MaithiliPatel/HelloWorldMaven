@@ -3,72 +3,55 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.test</groupId>
-  <artifactId>HelloWorldMaven</artifactId>
-  <version>1.1.1-RELEASE</version>
-  <packaging>jar</packaging>
+    <!-- Spring Boot parent -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.18</version>
+        <relativePath/>
+    </parent>
 
-  <name>HelloWorldMaven</name>
-  <url>http://maven.apache.org</url>
+    <groupId>com.test</groupId>
+    <artifactId>HelloWorldMaven</artifactId>
+    <version>1.1.1-RELEASE</version>
+    <packaging>jar</packaging>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>8</maven.compiler.source>
-    <maven.compiler.target>8</maven.compiler.target>
-  </properties>
+    <name>HelloWorldMaven</name>
+    <description>Spring Boot Hello World App</description>
 
-  <distributionManagement>
-    <repository>
-      <id>releases</id>
-      <url>http://3.84.4.116:8081/repository/maven-releases/</url>
-    </repository>
-    <snapshotRepository>
-      <id>snapshots</id>
-      <url>http://3.84.4.116:8081/repository/maven-snapshots/</url>
-    </snapshotRepository>
-  </distributionManagement>
+    <properties>
+        <java.version>17</java.version>
+    </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+    <dependencies>
 
-  <build>
-    <plugins>
+        <!-- Spring Boot Web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
 
-      <!-- Java compiler -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
-        <configuration>
-          <source>8</source>
-          <target>8</target>
-        </configuration>
-      </plugin>
+        <!-- Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-      <!-- Executable JAR -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.3.0</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <!-- MUST MATCH App.java PACKAGE -->
-              <mainClass>com.test.HelloWorldMaven.App</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
+    </dependencies>
 
-    </plugins>
-  </build>
+    <build>
+        <plugins>
+
+            <!-- Spring Boot Plugin (creates executable JAR) -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>
