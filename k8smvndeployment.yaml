@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
       - name: mai-mvn-container
-        image: maithili28/helloworld:latest
+        image: maithili28/helloworld:${BUILD_NUMBER}
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
 ---
