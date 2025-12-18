@@ -84,27 +84,34 @@ pipeline {
                 //-----------------end approval prompt------------
             }
         }
-		/* ------------------------------------------------------
+
+       /* ------------------------------------------------------
            8. DEPLOY TO KUBERNETS CLUSTER
         ------------------------------------------------------ */
-        stage('Deploy to Kubernete Cluster') {
-            steps {
-                sshPublisher(publishers: [
-                    sshPublisherDesc(
-                        configName: 'kube-master',
-                        transfers: [
-                            sshTransfer(
-                                execCommand: """
-                                kubectl set image deployment/mai-deploy \
-                                mai-mvn-container=maithili28/helloworld:${BUILD_NUMBER}
-                                kubectl rollout status deployment/mai-deploy
-                                """
-                            )
-                        ]
-                    )
-                ])
-            }
-		}
+		stage('Deploy to Kubernetes Cluster') {
+    		steps {
+       			 sshPublisher(publishers: [
+            		sshPublisherDesc(
+                		configName: 'kube-master',
+               				 transfers: [
+                    			sshTransfer(
+				                        execCommand: """
+                        				# 1️⃣ Ensure deployment & service exist (safe to run)
+                        				kubectl apply -f k8smvndeployment.yaml
+
+                       				    # 2️⃣ Update image with latest build
+                        				kubectl set image deployment/mai-deploy \
+                        				mai-mvn-container=maithili28/helloworld:${BUILD_NUMBER}
+
+                        				# 3️⃣ Wait for rollout to complete
+                        				kubectl rollout status deployment/mai-deploy
+				                        """
+                    					)
+                				]	
+            				)
+        			])
+    			}
+			}
     }
 }
 
