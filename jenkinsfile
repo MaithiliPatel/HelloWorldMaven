@@ -52,41 +52,16 @@ pipeline {
 		/* ------------------------------------------------------
            5. APPROVED - PUSH DOCKER IMAGE TO DOCKER HUB
         ------------------------------------------------------ */
-        stage('Approve - push Image to dockerhub') {
-    steps {
-
-        // Send approval email
-        emailext(
-            subject: "Approval Required: Push Docker Image - ${env.JOB_NAME}",
-            body: """
-                <p>Hello,</p>
-                <p><b>Approval is required</b> to push the Docker image.</p>
-
-                <ul>
-                    <li><b>Job:</b> ${env.JOB_NAME}</li>
-                    <li><b>Build Number:</b> ${env.BUILD_NUMBER}</li>
-                    <li><b>Triggered By:</b> ${env.BUILD_USER}</li>
-                </ul>
-
-                <p>Please login to Jenkins and approve the job:</p>
-                <p><a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-
-                <p>Thanks,<br/>Jenkins</p>
-            """,
-            to: "maithilipatel28@gmail.com",
-            mimeType: 'text/html'
-        )
-
-        // Approval prompt
-        script {
-            env.APPROVED_DEPLOY = input(
-                message: 'Approve push to DockerHub?',
-                ok: 'Approve'
-            )
+        stage('Approve - push Image to dockerhub'){
+            steps{
+                
+                //----------------send an approval prompt-------------
+                script {
+                   env.APPROVED_DEPLOY = input message: 'User input required Choose "yes" | "Abort"'
+                       }
+                //-----------------end approval prompt------------
+            }
         }
-    }
-}
-
 
         /* ------------------------------------------------------
            6. PUSH DOCKER IMAGE TO DOCKER HUB
