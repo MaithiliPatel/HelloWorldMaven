@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         maven "MAVEN"
-          }
+    }
 
     stages {
 
@@ -41,13 +41,13 @@ pipeline {
            4. LOGIN TO DOCKERHUB
         ------------------------------------------------------ */
         stage('Login to DockerHub') {
-            steps {
+             steps {
               withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
    			 sh '''
      			 echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
    			 '''
 				}
-            }
+            }}
         }
 
 		/* ------------------------------------------------------
@@ -65,14 +65,42 @@ pipeline {
         }
 
         /* ------------------------------------------------------
-           5. PUSH DOCKER IMAGE TO DOCKER HUB
+           6. PUSH DOCKER IMAGE TO DOCKER HUB
         ------------------------------------------------------ */
         stage('Push Docker Image to Docker Hub') {
             steps {
                sh "docker push maithili28/helloworld:latest"
             }
         }
-
+		/* ------------------------------------------------------
+           7. APPROVED DEPLOYMENT TO KUBERNETE CLUSTER
+        ------------------------------------------------------ */
+        stage('Approve - Deployment to Kubernete Cluster') {
+            steps {
+                
+				//----------------send an approval prompt-------------
+                script {
+                   env.APPROVED_DEPLOY = input message: 'User input required Choose "yes" | "Abort"'
+                       }
+                //-----------------end approval prompt------------
+            }
+        }
+		/* ------------------------------------------------------
+           8. DEPLOY TO KUBERNETS CLUSTER
+        ------------------------------------------------------ */
+        stage('Deploy to Kubernete Cluster') {
+            steps {
+               sshPublisher(publishers: [sshPublisherDesc(configName: 'kube-master', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'kubectl apply -f k8smvndeployment.yaml', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '.', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '*.yaml')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+            }
+        }
     }
 }
+
+
+
+
+
+
+
+
 
