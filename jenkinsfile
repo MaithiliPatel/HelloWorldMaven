@@ -5,7 +5,7 @@ pipeline {
         maven "MAVEN"
     }
 
-    stages {
+    stages{
 
         /* ------------------------------------------------------
            1. CHECKOUT SOURCE CODE
@@ -48,7 +48,7 @@ pipeline {
    			 '''
 				}
             }}
-        }
+        
 
 		/* ------------------------------------------------------
            5. APPROVED - PUSH DOCKER IMAGE TO DOCKER HUB
@@ -92,6 +92,7 @@ pipeline {
             steps {
                sshPublisher(publishers: [sshPublisherDesc(configName: 'kube-master', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'kubectl apply -f k8smvndeployment.yaml', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '.', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '*.yaml')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
             }
+		}
     }
 }
 
