@@ -28,7 +28,7 @@ metadata:
     app: mai-mvn-app
 spec:
   selector:
-    app: 
+    app: mai-mvn-app
 
   type: NodePort
   ports:
