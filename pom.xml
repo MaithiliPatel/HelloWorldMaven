@@ -5,7 +5,6 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- Project coordinates -->
   <groupId>com.test</groupId>
   <artifactId>HelloWorldMaven</artifactId>
   <version>1.1.1-RELEASE</version>
@@ -14,14 +13,12 @@
   <name>HelloWorldMaven</name>
   <url>http://maven.apache.org</url>
 
-  <!-- Java version -->
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>8</maven.compiler.source>
     <maven.compiler.target>8</maven.compiler.target>
   </properties>
 
-  <!-- Nexus repositories -->
   <distributionManagement>
     <repository>
       <id>releases</id>
@@ -33,7 +30,6 @@
     </snapshotRepository>
   </distributionManagement>
 
-  <!-- Dependencies -->
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -43,11 +39,10 @@
     </dependency>
   </dependencies>
 
-  <!-- Build configuration -->
   <build>
     <plugins>
 
-      <!-- Compile with Java 8 -->
+      <!-- Java compiler -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -58,7 +53,7 @@
         </configuration>
       </plugin>
 
-      <!-- Make JAR executable (VERY IMPORTANT) -->
+      <!-- Executable JAR -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -66,8 +61,8 @@
         <configuration>
           <archive>
             <manifest>
-              <!-- CHANGE ONLY IF YOUR MAIN CLASS NAME IS DIFFERENT -->
-              <mainClass>com.test.App</mainClass>
+              <!-- MUST MATCH App.java PACKAGE -->
+              <mainClass>com.test.HelloWorldMaven.App</mainClass>
             </manifest>
           </archive>
         </configuration>
