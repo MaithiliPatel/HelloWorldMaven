@@ -52,29 +52,7 @@ pipeline {
 		/* ------------------------------------------------------
            5. APPROVED - PUSH DOCKER IMAGE TO DOCKER HUB
         ------------------------------------------------------ */
-        stage('Approve - push Image to dockerhub'){
-            steps{
-                
-                //----------------send an approval prompt-------------
-                script {
-                   env.APPROVED_DEPLOY = input message: 'User input required Choose "yes" | "Abort"'
-                       }
-                //-----------------end approval prompt------------
-            }
-        }
-
-        /* ------------------------------------------------------
-           6. PUSH DOCKER IMAGE TO DOCKER HUB
-        ------------------------------------------------------ */
-        stage('Push Docker Image to Docker Hub') {
-            steps {
-               sh "docker push maithili28/helloworld:${BUILD_NUMBER}"
-            }
-        }
-		/* ------------------------------------------------------
-           7. APPROVED DEPLOYMENT TO KUBERNETE CLUSTER
-        ------------------------------------------------------ */
-      stage('Approve - push Image to dockerhub') {
+        stage('Approve - push Image to dockerhub') {
     steps {
 
         // Send approval email
@@ -95,7 +73,7 @@ pipeline {
 
                 <p>Thanks,<br/>Jenkins</p>
             """,
-            to: "maithili28@gmail.com",
+            to: "approver@company.com",
             mimeType: 'text/html'
         )
 
@@ -109,6 +87,28 @@ pipeline {
     }
 }
 
+
+        /* ------------------------------------------------------
+           6. PUSH DOCKER IMAGE TO DOCKER HUB
+        ------------------------------------------------------ */
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+               sh "docker push maithili28/helloworld:${BUILD_NUMBER}"
+            }
+        }
+		/* ------------------------------------------------------
+           7. APPROVED DEPLOYMENT TO KUBERNETE CLUSTER
+        ------------------------------------------------------ */
+        stage('Approve - Deployment to Kubernete Cluster') {
+            steps {
+                
+				//----------------send an approval prompt-------------
+                script {
+                   env.APPROVED_DEPLOY = input message: 'User input required Choose "yes" | "Abort"'
+                       }
+                //-----------------end approval prompt------------
+            }
+        }
 
        /* ------------------------------------------------------
            8. DEPLOY TO KUBERNETS CLUSTER
