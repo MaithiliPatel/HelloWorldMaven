@@ -112,6 +112,22 @@ pipeline {
         			])
     			}
 			}
+        /* ------------------------------------------------------
+           9. DEPLOY TO KUBERNETS CLUSTER
+        ------------------------------------------------------ */
+		stage('Docker Cleanup (Keep Latest Build)') {
+    steps {
+        sh '''
+            echo "Keeping image: maithili28/helloworld:${BUILD_NUMBER}"
+
+            docker images maithili28/helloworld --format "{{.Tag}} {{.ID}}" \
+            | grep -v "^${BUILD_NUMBER}$" \
+            | awk '{print $2}' \
+            | xargs -r docker rmi -f
+        '''
+    }
+}
+
     }
 }
 
