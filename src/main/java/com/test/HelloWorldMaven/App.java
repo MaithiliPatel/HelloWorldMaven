@@ -1,13 +1,21 @@
 
 package com.test.HelloWorldMaven;
 
-public class App {
-    public static void main(String[] args) throws Exception {
-        System.out.println("Hello World!");
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-        // Keep container alive
-        while (true) {
-            Thread.sleep(10000);
-        }
+@SpringBootApplication
+@RestController
+public class App {
+
+    @GetMapping("/")
+    public String hello() {
+        return "Hello World from Jenkins + Docker + Kubernetes!";
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(App.class, args);
     }
 }
